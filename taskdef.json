@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:ap-southeast-1:663598710458:task-definition/lab7-task-pipeline:1",
+    "taskDefinitionArn": "arn:aws:ecs:ap-southeast-1:663598710458:task-definition/lab7-task-pipeline:3",
     "containerDefinitions": [
         {
             "name": "lab7-webapp",
