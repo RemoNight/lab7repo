@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $ECR_REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker tag $ECR_REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION $ECR_REPOSITORY_URI:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to Amazon ECR...
+      - docker push $ECR_REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $ECR_REPOSITORY_URI:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"lab7-webapp","imageUri":"%s"}]' $ECR_REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION > imagedefinitions.json
+      - echo "--- Verifying imagedefinitions.json ---"
+      - ls -l imagedefinitions.json
+      - cat imagedefinitions.json
+      - echo "--- End of verification ---"
+      # IMPORTANT: Ensure your taskdef.json is in your source repo for this to work
+      # Or, dynamically generate/update it if necessary
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    # - appspec.yaml # This line is crucial
